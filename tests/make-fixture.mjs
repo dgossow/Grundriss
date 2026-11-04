@@ -33,6 +33,9 @@ async function plan({ rotate = 0 } = {}) {
   page.drawText('10,00', { x: (a.x + b.x) / 2 - 10, y: a.y + 3, size: 8, font });
   page.drawText('Grundriss EG   M 1:100', { x: ox, y: 20 * MM, size: 14, font });
   if (rotate) page.setRotation(degrees(rotate));
+  // feste Datumswerte → reproduzierbare Dateien
+  doc.setCreationDate(new Date('2026-01-01T00:00:00Z'));
+  doc.setModificationDate(new Date('2026-01-01T00:00:00Z'));
   return doc.save();
 }
 

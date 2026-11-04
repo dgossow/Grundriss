@@ -62,7 +62,8 @@ maßstäblich messen, Grundriss-Elemente mit Parametern einzeichnen und Bereiche
 ### Variante A: fertige App von GitHub
 
 1. Auf GitHub unter **Actions → „Mac-App bauen“ → Run workflow** den Build starten
-   (oder ein Tag `v1.0.0` pushen).
+   (der Button erscheint, sobald der Workflow im Haupt-Branch liegt) – oder ein Tag
+   `v1.0.0` pushen.
 2. Nach ein paar Minuten unter dem Lauf das Artefakt **Grundriss-macOS** herunterladen,
    entpacken und die `.dmg` für deinen Mac öffnen (`arm64` = Apple Silicon M1–M4,
    `x64` = Intel).
