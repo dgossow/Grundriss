@@ -140,7 +140,7 @@ register<PathLenA>({
       }
       const last = a.pts[a.pts.length - 1];
       out.push(
-        text(add(last, { x: mm(2), y: -mm(2) }), `Σ ${fmtLen(total, ctx.settings)}`, {
+        text(add(last, { x: mm(2), y: -mm(2) }), `L = ${fmtLen(total, ctx.settings)}`, {
           size: a.textSize,
           bold: true,
           color: a.style.stroke,

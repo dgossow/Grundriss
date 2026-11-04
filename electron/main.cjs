@@ -18,6 +18,12 @@ protocol.registerSchemesAsPrivileged([
 const winState = new Map();
 /** Dateien, die vor "ready" geöffnet werden sollen (macOS open-file, argv). */
 const pendingPaths = [];
+/** App wird gerade beendet (⌘Q) – nach bestätigtem Schließen weiter beenden. */
+let quitting = false;
+
+function continueQuit() {
+  if (quitting) setImmediate(() => app.quit());
+}
 
 function stateOf(win) {
   let s = winState.get(win.id);
@@ -75,6 +81,9 @@ function createWindow(filePath) {
     } else if (response === 2) {
       st.forceClose = true;
       win.close();
+      continueQuit();
+    } else {
+      quitting = false;
     }
   });
   win.on('closed', () => winState.delete(win.id));
@@ -268,6 +277,7 @@ ipcMain.on('window:close-confirmed', (e) => {
   if (!win) return;
   stateOf(win).forceClose = true;
   win.close();
+  continueQuit();
 });
 
 ipcMain.on('native-edit', (e, cmd) => {
@@ -276,6 +286,10 @@ ipcMain.on('native-edit', (e, cmd) => {
 });
 
 // ---------- App-Lebenszyklus ----------
+
+app.on('before-quit', () => {
+  quitting = true;
+});
 
 app.on('open-file', (e, filePath) => {
   e.preventDefault();

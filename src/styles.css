@@ -565,6 +565,7 @@ button {
   color: var(--muted);
   font-size: 12px;
   min-width: 22px;
+  white-space: nowrap;
 }
 .insp-block {
   margin: 8px 0;

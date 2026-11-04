@@ -181,8 +181,8 @@ register<DoorA>({
       label: 'Türart',
       type: 'select',
       options: [
-        ['single', 'Drehflügeltür (1-flg.)'],
-        ['double', 'Drehflügeltür (2-flg.)'],
+        ['single', 'Drehtür, 1-flügelig'],
+        ['double', 'Drehtür, 2-flügelig'],
         ['sliding', 'Schiebetür'],
       ],
     },

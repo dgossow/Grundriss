@@ -59,7 +59,7 @@ export const TOOLS: ToolInfo[] = [
   { id: 'stairs', label: 'Treppe', key: 's', group: 'plan', kind: 'stairs', hint: 'Klicken = setzen · Ziehen = Laufrichtung und Länge · R = drehen · X = Richtung umkehren' },
   { id: 'room', label: 'Raum', key: 'b', group: 'plan', kind: 'room', hint: 'Raumecken klicken · Doppelklick/↩ = fertig – Fläche wird automatisch berechnet' },
   { id: 'column', label: 'Stütze', key: 'u', group: 'plan', kind: 'column', hint: 'Klicken = setzen · R = drehen' },
-  { id: 'symbol', label: 'Einrichtung', key: 'g', group: 'plan', kind: 'symbol', hint: 'Objekt rechts wählen · Klicken = setzen · Ziehen = ausrichten · R = drehen · X = spiegeln' },
+  { id: 'symbol', label: 'Einrichtung', key: 'g', group: 'plan', kind: 'symbol', hint: 'Objekt in der Bibliothek wählen · Klicken = setzen · Ziehen = ausrichten · R = drehen · X = spiegeln' },
   { id: 'eraser', label: 'Bereich löschen', key: 'e', group: 'erase', kind: 'whiteout', hint: 'Rechteck aufziehen = Elemente darin löschen und/oder Plan weiß abdecken (Optionen rechts)' },
 ];
 

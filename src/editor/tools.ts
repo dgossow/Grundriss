@@ -318,8 +318,8 @@ export class TwoPointTool implements Tool {
     if (e.key === 'Enter') {
       const len = parseLength(this.typed, this.app.ctx.settings.unit);
       if (len && this.p2) {
-        const d = norm(sub(this.p2, this.p1));
-        this.p2 = add(this.p1, mul(d.x === 1 && d.y === 0 && dist(this.p1, this.p2) === 0 ? { x: 1, y: 0 } : d, len * this.app.ctx.ptPerM));
+        // Richtung der aktuellen Mausposition (bei Nulllänge: nach rechts)
+        this.p2 = add(this.p1, mul(norm(sub(this.p2, this.p1)), len * this.app.ctx.ptPerM));
       }
       this.finish();
       return true;

@@ -25,9 +25,11 @@ const input = join(work, 'plan.pdf');
 copyFileSync(join(here, 'fixtures', 'grundriss-1zu100.pdf'), input);
 const target = join(work, 'plan annotiert.pdf');
 
+// GRUNDRISS_EXE=/pfad/zur/gepackten/App → testet das fertige Paket (inkl. app.asar)
+const packaged = process.env.GRUNDRISS_EXE;
 const app = await electron.launch({
-  executablePath: require('electron'),
-  args: [root, '--no-sandbox'],
+  executablePath: packaged || require('electron'),
+  args: packaged ? ['--no-sandbox'] : [root, '--no-sandbox'],
   env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: '1' },
 });
 const errors = [];

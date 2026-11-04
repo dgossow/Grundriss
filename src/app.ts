@@ -122,6 +122,7 @@ export class App implements AppApi {
       });
     }
     this.updateChrome();
+    this.redraw();
   }
 
   // =====================================================================
@@ -396,6 +397,7 @@ export class App implements AppApi {
       if ((e as Error).message !== 'abgebrochen') await alertDialog('PDF konnte nicht geöffnet werden', String((e as Error).message ?? e));
     } finally {
       if (token === this.loadToken) this.loading.classList.remove('show');
+      this.updateChrome();
     }
   }
 
@@ -629,8 +631,16 @@ export class App implements AppApi {
     this.updateZoomLabel();
     this.updateHint();
     this.view.stage.style.cursor = this.spaceDown ? 'grab' : this.tool.cursor;
-    bridge?.setDocState({ hasDoc: this.hasDoc, dirty, title: this.hasDoc ? name : 'Grundriss', path: this.savePath ?? this.filePath });
+    if (bridge) {
+      const st = { hasDoc: this.hasDoc, dirty, title: this.hasDoc ? name : 'Grundriss', path: this.savePath ?? this.filePath };
+      const key = JSON.stringify(st);
+      if (key !== this.lastDocState) {
+        this.lastDocState = key;
+        bridge.setDocState(st);
+      }
+    }
   }
+  private lastDocState = '';
 
   private updateZoomLabel() {
     const z = Math.round(this.view.cam.z * 100);
@@ -906,7 +916,7 @@ export class App implements AppApi {
     const info = SYMBOLS[k];
     const ptPerM = 40 / Math.max(info.w, info.d);
     const a = makeAnnot<SymbolA>(this.toolDefaults.symbol, { ...symbolDefaults(k), p: { x: 0, y: 0 }, angle: 0, mirror: false, chairs: true } as never, 'p');
-    a.style = { ...a.style, stroke: 'currentColor', width: 0.3 / ptPerM * 28 };
+    a.style = { ...a.style, stroke: 'currentColor', width: 0.4 };
     const prims = primsOf(a, { ptPerM, settings: this.settings });
     const bb = primsBBox(prims);
     const pad = 2;
@@ -1154,16 +1164,24 @@ export class App implements AppApi {
       const opts = { embedData: !flat };
       // nicht festgelegte Maßstäbe mit dem tatsächlich verwendeten Wert speichern
       const pages = this.hist.pages.map((p, i) => (p.scale ? p : { ...p, scale: this.effectiveScale(i) }));
-      if (this.encrypted) {
-        bytes = await buildRasterPdf(this.baseBytes, (i) => this.renderRaster(i), this.pageCount, pages, this.settings, opts);
-      } else {
-        bytes = await buildPdf(
-          this.baseBytes,
-          pages,
-          this.geoms.map((g) => g.transform),
-          this.settings,
-          opts,
-        );
+      const raster = () => buildRasterPdf(this.baseBytes!, (i) => this.renderRaster(i), this.pageCount, pages, this.settings, opts);
+      if (this.encrypted) bytes = await raster();
+      else {
+        try {
+          bytes = await buildPdf(
+            this.baseBytes,
+            pages,
+            this.geoms.map((g) => g.transform),
+            this.settings,
+            opts,
+          );
+        } catch (e) {
+          // PDF-Struktur nicht beschreibbar (z. B. beschädigt/geschützt) → als Bild-PDF sichern
+          console.warn('Vektor-Sichern nicht möglich, verwende Bild-PDF', e);
+          bytes = await raster();
+          this.encrypted = true;
+          toast('Diese PDF lässt sich nicht direkt verändern – die Seiten wurden als Bild (200 dpi) übernommen.');
+        }
       }
     } catch (e) {
       console.error(e);

@@ -1,0 +1,60 @@
+// Erzeugt das App-Icon (build/icon.png, 1024×1024) aus einer SVG-Vorlage.
+import { createRequire } from 'node:module';
+import { writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const { chromium } = require('playwright');
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f7bf5"/>
+      <stop offset="1" stop-color="#0d47b8"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+    <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#grid)"/>
+  </g>
+  <g fill="#ffffff">
+    <!-- Außenwände -->
+    <path fill-rule="evenodd" d="M250 260H774V744H250Z M286 296V708H738V296Z"/>
+    <!-- Innenwand mit Türöffnung -->
+    <rect x="496" y="296" width="22" height="210"/>
+    <rect x="496" y="618" width="22" height="90"/>
+  </g>
+  <!-- Tür -->
+  <path d="M507 506 L507 618" stroke="#fff" stroke-width="0" />
+  <path d="M518 506 h8 v112 h-8z" fill="#fff"/>
+  <path d="M526 506 A112 112 0 0 1 618 618" fill="none" stroke="#ffffff" stroke-width="7" stroke-dasharray="14 10" stroke-linecap="round" opacity="0.85"/>
+  <!-- Bemaßung -->
+  <g stroke="#ffd54f" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M250 812H774"/>
+    <path d="M232 830L268 794M756 830L792 794"/>
+  </g>
+  <!-- Stift -->
+  <g transform="rotate(45 690 420)">
+    <rect x="660" y="300" width="60" height="230" rx="10" fill="#ff5a4f"/>
+    <rect x="660" y="300" width="60" height="44" rx="10" fill="#ffd5d2"/>
+    <path d="M660 530 L690 588 L720 530Z" fill="#ffe0b2"/>
+    <path d="M681 570 L690 588 L699 570Z" fill="#333"/>
+  </g>
+</svg>`;
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1024, height: 1024 }, deviceScaleFactor: 1 });
+await page.setContent(`<html><body style="margin:0;background:transparent">${svg}</body></html>`);
+const png = await page.locator('svg').screenshot({ omitBackground: true });
+writeFileSync(join(root, 'build', 'icon.png'), png);
+writeFileSync(join(root, 'build', 'icon.svg'), svg);
+await browser.close();
+console.log('build/icon.png erzeugt');

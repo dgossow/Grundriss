@@ -79,7 +79,13 @@ export async function preparePdf(bytes: Uint8Array): Promise<PreparedPdf> {
     }
     return { baseBytes: bytes, data: null, encrypted };
   }
-  const doc = await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
+  let doc: PDFDocument;
+  try {
+    doc = await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
+  } catch (e) {
+    console.warn('PDF-Struktur nicht lesbar, Bearbeitungsdaten werden ignoriert', e);
+    return { baseBytes: bytes, data: null, encrypted: false };
+  }
   const catalog = doc.catalog;
   const ref = catalog.get(PDFName.of(DATA_KEY));
   const stream = ref ? doc.context.lookup(ref) : null;

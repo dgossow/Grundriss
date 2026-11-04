@@ -316,6 +316,28 @@ try {
   await page.waitForTimeout(800);
   await page.screenshot({ path: join(outDir, '05-rotated.png') });
 
+  console.log('Geschützte PDF (Verschlüsselung, nur Drucken erlaubt)');
+  await page.reload();
+  await page.waitForFunction(() => !!window.grundrissApp);
+  await openFixture('grundriss-geschuetzt.pdf');
+  check(await page.evaluate(() => window.grundrissApp.hasDoc), 'Geschützte PDF geöffnet');
+  await page.waitForTimeout(1200);
+  await press('m');
+  const g0 = await scr(0, 0);
+  const g1 = await scr(10, 0);
+  await page.mouse.click(g0.x, g0.y);
+  await page.mouse.click(g1.x, g1.y);
+  const [dl5] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), page.evaluate(() => window.grundrissApp.command('save'))]);
+  const protPath = join(outDir, 'geschuetzt-gesichert.pdf');
+  await dl5.saveAs(protPath);
+  const prot = readFileSync(protPath);
+  check(prot.toString('latin1').includes('/GrundrissBase'), `Als Bild-PDF mit eingebettetem Original gesichert (${prot.length} Bytes)`);
+  await page.reload();
+  await page.waitForFunction(() => !!window.grundrissApp);
+  await openFixture('geschuetzt-gesichert.pdf', prot);
+  list = await annots();
+  check(list.length === 1 && list[0].kind === 'measure', 'Messung aus geschützter PDF wieder bearbeitbar');
+
   check(errors.length === 0, `Keine Fehler in der Konsole${errors.length ? ': ' + errors.join(' | ') : ''}`);
 } catch (e) {
   failures++;
