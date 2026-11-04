@@ -1,0 +1,7 @@
+node_modules/
+out/
+dist/
+public/pdfjs/
+*.log
+.DS_Store
+test-results/

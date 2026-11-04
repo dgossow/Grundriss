@@ -1,0 +1,77 @@
+{
+  "name": "grundriss",
+  "productName": "Grundriss",
+  "version": "1.0.0",
+  "description": "PDF-Viewer und -Editor für Architekturzeichnungen: annotieren, messen, Grundriss-Elemente",
+  "main": "electron/main.cjs",
+  "author": "Grundriss",
+  "license": "Apache-2.0",
+  "private": true,
+  "devDependencies": {
+    "electron": "^45.2.2",
+    "electron-builder": "^26.18.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.5.438",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "scripts": {
+    "assets": "node scripts/copy-pdfjs-assets.mjs",
+    "dev": "npm run assets && vite",
+    "build": "npm run assets && tsc -p . && vite build",
+    "start": "npm run build && electron .",
+    "typecheck": "tsc -p .",
+    "test": "npm run build && node tests/make-fixture.mjs && node tests/e2e.mjs",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:mac:arm64": "npm run build && electron-builder --mac --arm64",
+    "dist:mac:x64": "npm run build && electron-builder --mac --x64"
+  },
+  "build": {
+    "appId": "de.grundriss.app",
+    "productName": "Grundriss",
+    "copyright": "Apache-2.0",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**",
+      "out/renderer/**",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "Grundriss ${version}"
+    },
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF-Dokument",
+        "role": "Editor",
+        "rank": "Alternate"
+      }
+    ]
+  }
+}
